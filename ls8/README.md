@@ -65,6 +65,56 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+## Files in LS8:
+* Call 
+  1. Save cmd -> R1
+  2. Save 10 -> R0
+  3. Call R1
+  4. Repeat 2 and 3 for all new values Save 
+  5. Halt
+  6. Run MULT2PRINT -> R0 += R0, PRN R0, RET
+* Interrupts
+  1. Save 0XF8 -> R0
+  2. Save INTHANDLER -> R1
+  3. Set R0, R1
+  4. 
+* Keyboard
+  1.
+  2.
+  3.
+* Mult
+  1.
+  2.
+  3.
+* Print8
+  1.
+  2.
+  3.
+* PrintStr
+  1.
+  2.
+  3.
+* SCTest
+  1.
+  2.
+  3.
+* Stack
+  1.
+  2.
+  3.
+* StackOverlow
+  1.
+  2.
+  3.
+* CPU
+  1.
+  2.
+  3.
+* LS8
+  1.
+  2.
+  3.
+
 ## Step 1: Add the constructor to `cpu.py`
 
 Add list properties to the `CPU` class to hold 256 bytes of memory and 8
