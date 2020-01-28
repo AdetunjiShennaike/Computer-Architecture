@@ -6,8 +6,15 @@ class CPU:
     """Main CPU class."""
 
     def __init__(self):
-        """Construct a new CPU."""
-        pass
+      """Construct a new CPU."""
+      self.RAM = [0] * 256
+      self.Reg = [0] * 8
+
+    def ram_read(self):
+      pass
+
+    def ram_write(self):
+      pass
 
     def load(self):
         """Load a program into memory."""
@@ -27,7 +34,7 @@ class CPU:
         ]
 
         for instruction in program:
-            self.ram[address] = instruction
+            self.RAM[address] = instruction
             address += 1
 
 
@@ -35,7 +42,7 @@ class CPU:
         """ALU operations."""
 
         if op == "ADD":
-            self.reg[reg_a] += self.reg[reg_b]
+            self.Reg[reg_a] += self.Reg[reg_b]
         #elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
@@ -56,10 +63,10 @@ class CPU:
         ), end='')
 
         for i in range(8):
-            print(" %02X" % self.reg[i], end='')
+            print(" %02X" % self.Reg[i], end='')
 
         print()
 
     def run(self):
-        """Run the CPU."""
-        pass
+      """Run the CPU."""
+      pass
