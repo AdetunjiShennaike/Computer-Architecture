@@ -77,11 +77,25 @@ but you'll have to implement those three above instructions first!
   1. Save 0XF8 -> R0
   2. Save INTHANDLER -> R1
   3. Set R0, R1
-  4. 
+  4. Save 1 -> R5
+  5. Save LOOP -> R0
+  6. LOOP JMP R0
+  7. INTHANDLER
+  8. Save 65 -> R0
+  9. Print Alpha Character PRA -> R0
+  10. Return from Input Handler IRET
 * Keyboard
-  1.
-  2.
-  3.
+  1. Save 0XF9 -> R0
+  2. Save INTHANDLER -> R1
+  3. Set R0, R1
+  4. Save 2 -> R5
+  5. Save LOOP -> R0
+  6. LOOP JMP R0
+  7. INTHANDLER
+  8. Save 0XF4 -> R0
+  9. Read R1, from R0
+  10. Print Alpha Character PRA -> R1
+  11. Return from Input Handler IRET
 * Mult
   1.
   2.
