@@ -9,12 +9,14 @@ class CPU:
       """Construct a new CPU."""
       self.RAM = [0] * 256
       self.Reg = [0] * 8
+      self.PC = 0
+      # self.SP = 
 
-    def ram_read(self):
-      pass
+    def ram_read(self, address):
+      return RAM[address]
 
-    def ram_write(self):
-      pass
+    def ram_write(self, write, address):
+      RAM[address] = write
 
     def load(self):
         """Load a program into memory."""
