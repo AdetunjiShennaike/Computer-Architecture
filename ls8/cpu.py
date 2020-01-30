@@ -72,13 +72,37 @@ class CPU:
         #     address += 1
 
 
-    def alu(self, op, reg_a, reg_b):
+    def alu(self, op, reg_a, reg_b = 0):
         """ALU operations."""
 
         if op == "ADD":
             self.Reg[reg_a] += self.Reg[reg_b]
         elif op == "SUB": 
             self.Reg[reg_a] -= self.Reg[reg_b]
+        elif op == "AND":
+            result = self.Reg[reg_a] & self.Reg[reg_b]
+            self.Reg[reg_a] = result
+        elif op == "CMP":
+            if self.Reg[reg_a] > self.Reg[reg_b]:
+              self.FL['L'] = 0
+              self.FL['G'] = 1
+              self.FL['E'] = 0
+            if self.Reg[reg_a] < self.Reg[reg_b]
+              self.FL['L'] = 1
+              self.FL['G'] = 0
+              self.FL['E'] = 0
+            else:
+              self.FL['L'] = 0
+              self.FL['G'] = 0
+              self.FL['E'] = 1
+        elif op == "DEC":
+            self.Reg[reg_a] -= 1
+        elif op == "DIV":
+            if self.Reg[reg_b] == 0:
+              print(f'Cannot use the value 0')
+              self.HLT()
+            result = self.Reg[reg_a] // self.Reg[reg_b]
+            self.Reg[reg_a] = result
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -115,6 +139,17 @@ class CPU:
       index = self.ram_read(reg_a)
       print(f'{self.Reg[index]}')
       self.PC += 2
+
+    def CALL(self, func):
+      pass
+
+    def CMP(self, func):
+      pass
+    
+
+
+
+
 
     def run(self):
       """Run the CPU."""
