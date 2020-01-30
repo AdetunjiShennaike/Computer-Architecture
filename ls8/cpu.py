@@ -10,7 +10,13 @@ class CPU:
       self.running = True
       self.RAM = [0] * 256
       self.Reg = [0] * 8
-      self.IR = {
+      # self.IM #R5 Interrupt Marker
+      self.IS = 248 #R6 Interrupt Status(Interrupts held betwen I0-I7[0xF8-0xFF])
+      self.SP = 244 #R7 Stack Pointer(Starts at 0xF4 if stack is empty)
+
+      # Internal Registers
+      self.PC = 0 #Unmarked Program Counter
+      self.IR = { #Instruction Register
         0: 'NOP', #No Operation
         1: 'HLT', #Halt
         17: 'RET', #Return
@@ -37,7 +43,7 @@ class CPU:
         160: 'ADD',
         161: 'SUB',
         162: 'MUL',
-        162: 'DIV',
+        163: 'DIV',
         164: 'MOD', #Modulous
         167: 'CMP', #Compare
         168: 'AND', #Bitwise AND
@@ -46,10 +52,10 @@ class CPU:
         172: 'SHL', #Shift Left
         173: 'SHR', #Shift Right
       }
-      self.PC = 0
-      # self.SP = 
+      # self.MAR #Memory Address Register
+      # self.MDR #Memory Data Register
       # self.IE = 
-      self.FL = {
+      self.FL = { #Flags
         'E': 0, #Equals
         'G': 0, #Greater
         'L': 0, #Less
@@ -160,7 +166,7 @@ class CPU:
 
         print(f"TRACE: %02X | %02X %02X %02X |" % (
             self.PC,
-            #self.FL,
+            self.FL,
             #self.IE,
             self.ram_read(self.PC),
             self.ram_read(self.PC + 1),
@@ -173,23 +179,21 @@ class CPU:
         print()
 
     def LDI(self, reg_a, reg_b):
-      index = self.ram_read(reg_a)
-      value = self.ram_read(reg_b)
-      self.Reg[index] = value
-      self.PC += 3
+      # index = self.ram_read(reg_a)
+      # value = self.ram_read(reg_b)
+      self.Reg[reg_a] = reg_b
 
     def HLT(self):
       self.running = False
 
     def PRN(self, reg_a):
-      index = self.ram_read(reg_a)
-      print(f'{self.Reg[index]}')
-      self.PC += 2
+      # index = self.ram_read(reg_a)
+      print(f'{self.Reg[reg_a]}')
 
     def CALL(self, func):
       pass
 
-    def INT(self, func):
+    def INT(self, reg_a):
       pass
     
     def IRET(self, func):
@@ -222,17 +226,36 @@ class CPU:
 
 
     def run(self):
-      """Run the CPU."""
+      """
+      Run the CPU.
+      
+      When the LS-8 is booted, the following steps occur:
+
+        R0-R6 are cleared to 0.
+        R7 is set to 0xF4.
+        PC and FL registers are cleared to 0.
+        RAM is cleared to 0.
+      
+      Subsequently, the program can be loaded into RAM starting at address 0x00.
+      """
+
+      self.Reg[7] = self.SP
+
       while self.running:
         command = self.ram_read(self.PC)
         if command in self.IR:
           instruction = self.IR[command]
         if instruction == 'LDI':
-          self.LDI(self.PC + 1, self.PC + 2)
+          self.LDI(self.ram_read(self.PC + 1), self.ram_read(self.PC + 2))
+          self.PC += 3
         elif instruction == 'HLT':
           self.HLT()
         elif instruction == 'PRN':
-          self.PRN(self.PC + 1)
+          self.PRN(self.ram_read(self.PC + 1))
+          self.PC += 2
+        elif instruction == 'MUL':
+          self.alu('MUL',self.ram_read(self.PC + 1), self.ram_read(self.PC + 2))
+          self.PC += 3
         else:
-          print(f'This {instruction} doe not exist.')
+          print(f'This {instruction} does not exist.')
           sys.exit(1)
