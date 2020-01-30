@@ -13,7 +13,22 @@ class CPU:
       self.IR = {
         1: 'HLT',
         130: 'LDI',
-        71: 'PRN'
+        71: 'PRN',
+        162: 'MUL',
+        80: 'CALL',
+        132: 'ST',
+        84: 'JMP',
+        72: 'PRA',
+        19: 'IRET',
+        167: 'CMP',
+        85: 'JEQ',
+        86: 'JNE',
+        69: 'PUSH',
+        70: 'POP',
+        160: 'ADD',
+        101: 'INC',
+        102: 'DEC',
+        17: 'RET'
       }
       self.PC = 0
       # self.SP = 
@@ -62,7 +77,8 @@ class CPU:
 
         if op == "ADD":
             self.Reg[reg_a] += self.Reg[reg_b]
-        #elif op == "SUB": etc
+        elif op == "SUB": 
+            self.Reg[reg_a] -= self.Reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
