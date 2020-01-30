@@ -7,16 +7,24 @@ class CPU:
 
     def __init__(self):
       """Construct a new CPU."""
+      self.running = True
       self.RAM = [0] * 256
       self.Reg = [0] * 8
+      self.IR = {
+        1: 'HLT',
+        130: 'LDI',
+        71: 'PRN'
+      }
       self.PC = 0
       # self.SP = 
+      # self.IE = 
+      # self.FL = 
 
     def ram_read(self, address):
-      return RAM[address]
+      return self.RAM[address]
 
-    def ram_write(self, write, address):
-      RAM[address] = write
+    def ram_write(self, address, write):
+      self.RAM[address] = write
 
     def load(self):
         """Load a program into memory."""
@@ -56,12 +64,12 @@ class CPU:
         """
 
         print(f"TRACE: %02X | %02X %02X %02X |" % (
-            self.pc,
+            self.PC,
             #self.fl,
             #self.ie,
-            self.ram_read(self.pc),
-            self.ram_read(self.pc + 1),
-            self.ram_read(self.pc + 2)
+            self.ram_read(self.PC),
+            self.ram_read(self.PC + 1),
+            self.ram_read(self.PC + 2)
         ), end='')
 
         for i in range(8):
@@ -69,6 +77,33 @@ class CPU:
 
         print()
 
+    def LDI(self, reg_a, reg_b):
+      index = self.ram_read(reg_a)
+      value = self.ram_read(reg_b)
+      self.Reg[index] = value
+      self.PC += 3
+
+    def HLT(self):
+      self.running = False
+
+    def PRN(self, reg_a):
+      index = self.ram_read(reg_a)
+      print(f'{self.Reg[index]}')
+      self.PC += 2
+
     def run(self):
       """Run the CPU."""
-      pass
+      while self.running:
+        command = self.ram_read(self.PC)
+        instruction = self.IR[command]
+        if instruction == 'LDI':
+          self.LDI(self.PC + 1, self.PC + 2)
+        elif instruction == 'HLT':
+          self.HLT()
+        elif instruction == 'PRN':
+          self.PRN(self.PC + 1)
+        else:
+          print(f'This {instruction} doe not exist.')
+          sys.exit(1)
+
+
