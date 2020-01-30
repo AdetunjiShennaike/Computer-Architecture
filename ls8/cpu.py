@@ -65,8 +65,8 @@ class CPU:
 
         print(f"TRACE: %02X | %02X %02X %02X |" % (
             self.PC,
-            #self.fl,
-            #self.ie,
+            #self.FL,
+            #self.IE,
             self.ram_read(self.PC),
             self.ram_read(self.PC + 1),
             self.ram_read(self.PC + 2)
@@ -95,7 +95,8 @@ class CPU:
       """Run the CPU."""
       while self.running:
         command = self.ram_read(self.PC)
-        instruction = self.IR[command]
+        if command in self.IR:
+          instruction = self.IR[command]
         if instruction == 'LDI':
           self.LDI(self.PC + 1, self.PC + 2)
         elif instruction == 'HLT':
@@ -105,5 +106,3 @@ class CPU:
         else:
           print(f'This {instruction} doe not exist.')
           sys.exit(1)
-
-

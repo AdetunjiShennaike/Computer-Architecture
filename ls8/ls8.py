@@ -7,5 +7,8 @@ from cpu import *
 
 cpu = CPU()
 
-cpu.load()
-cpu.run()
+if len(sys.argv) == 2:
+  cpu.load(sys.argv[1])
+  cpu.run()
+else:
+  print(f'You are missing a file name. ex. "python3 ls8.py <filename>"')
