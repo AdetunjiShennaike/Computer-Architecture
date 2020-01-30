@@ -11,29 +11,49 @@ class CPU:
       self.RAM = [0] * 256
       self.Reg = [0] * 8
       self.IR = {
-        1: 'HLT',
-        130: 'LDI',
-        71: 'PRN',
-        162: 'MUL',
-        80: 'CALL',
-        132: 'ST',
-        84: 'JMP',
-        72: 'PRA',
-        19: 'IRET',
-        167: 'CMP',
-        85: 'JEQ',
-        86: 'JNE',
+        0: 'NOP', #No Operation
+        1: 'HLT', #Halt
+        17: 'RET', #Return
+        19: 'IRET', #Interupt Return
         69: 'PUSH',
         70: 'POP',
+        71: 'PRN', #Print
+        72: 'PRA', #Print Alpha
+        80: 'CALL', #Call a subroutine(function)
+        82: 'INT', #Interupt
+        84: 'JMP', #Jump
+        85: 'JEQ', #Jump to Equal if set
+        86: 'JNE', #Jump to Address stored if Equal not set
+        87: 'JGT', #Jump to Greater-Than if set
+        88: 'JLT', #Jump to Less-Than if set
+        89: 'JLE', #Jump to Less-Than or Equal if set
+        90: 'JGE', #Jump to Greater-Than or Equal if set
+        101: 'INC', #Increment
+        102: 'DEC', #Decrement
+        105: 'NOT', #Bitwise NOT
+        130: 'LDI', #Set value of Reg_a to input
+        131: 'LD', #Load Reg_a with value at Reg_b
+        132: 'ST', #Store value in Reg_b in Reg_a
         160: 'ADD',
-        101: 'INC',
-        102: 'DEC',
-        17: 'RET'
+        161: 'SUB',
+        162: 'MUL',
+        162: 'DIV',
+        164: 'MOD', #Modulous
+        167: 'CMP', #Compare
+        168: 'AND', #Bitwise AND
+        170: 'OR', #Bitwise OR
+        171: 'XOR', #Bitwise Exclusive OR
+        172: 'SHL', #Shift Left
+        173: 'SHR', #Shift Right
       }
       self.PC = 0
       # self.SP = 
       # self.IE = 
-      # self.FL = 
+      self.FL = {
+        'E': 0, #Equals
+        'G': 0, #Greater
+        'L': 0, #Less
+      }
 
     def ram_read(self, address):
       return self.RAM[address]
@@ -82,12 +102,31 @@ class CPU:
         elif op == "AND":
             result = self.Reg[reg_a] & self.Reg[reg_b]
             self.Reg[reg_a] = result
+        elif op == "NOT":
+            result = ~self.Reg[reg_a]
+            self.Reg[reg_a] = result
+        elif op == "OR":
+            result = self.Reg[reg_a] | self.Reg[reg_b]
+            self.Reg[reg_a] = result
+        elif op == "XOR":
+            result = self.Reg[reg_a] ^ self.Reg[reg_b]
+            self.Reg[reg_a] = result
+        elif op == "DEC":
+            self.Reg[reg_a] -= 1
+        elif op == "INC":
+            self.Reg[reg_a] += 1
+        elif op == "SHL":
+            result = self.Reg[reg_a] << self.Reg[reg_b]
+            self.Reg[reg_a] = result
+        elif op == "SHR":
+            result = self.Reg[reg_a] >> self.Reg[reg_b]
+            self.Reg[reg_a] = result
         elif op == "CMP":
             if self.Reg[reg_a] > self.Reg[reg_b]:
               self.FL['L'] = 0
               self.FL['G'] = 1
               self.FL['E'] = 0
-            if self.Reg[reg_a] < self.Reg[reg_b]
+            if self.Reg[reg_a] < self.Reg[reg_b]:
               self.FL['L'] = 1
               self.FL['G'] = 0
               self.FL['E'] = 0
@@ -95,13 +134,20 @@ class CPU:
               self.FL['L'] = 0
               self.FL['G'] = 0
               self.FL['E'] = 1
-        elif op == "DEC":
-            self.Reg[reg_a] -= 1
+        elif op == "MUL":
+            result = self.Reg[reg_a] * self.Reg[reg_b]
+            self.Reg[reg_a] = result
         elif op == "DIV":
             if self.Reg[reg_b] == 0:
               print(f'Cannot use the value 0')
               self.HLT()
             result = self.Reg[reg_a] // self.Reg[reg_b]
+            self.Reg[reg_a] = result
+        elif op == "MOD":
+            if self.Reg[reg_b] == 0:
+              print(f'Cannot use the value 0')
+              self.HLT()
+            result = self.Reg[reg_a] % self.Reg[reg_b]
             self.Reg[reg_a] = result
         else:
             raise Exception("Unsupported ALU operation")
@@ -143,11 +189,35 @@ class CPU:
     def CALL(self, func):
       pass
 
-    def CMP(self, func):
+    def INT(self, func):
       pass
     
+    def IRET(self, func):
+      pass
 
+    def JEQ(self, func):
+      pass
 
+    def JGE(self, func):
+      pass
+
+    def JGT(self, func):
+      pass
+
+    def POP(self):
+      pass
+
+    def PRA(self):
+      pass
+
+    def PUSH(self):
+      pass
+
+    def RET(self):
+      pass
+
+    def ST(self):
+      pass
 
 
 
