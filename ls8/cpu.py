@@ -10,7 +10,7 @@ class CPU:
       self.running = True
       self.RAM = [0] * 256
       self.Reg = [0] * 8
-      # self.IM #R5 Interrupt Marker
+      self.IM = 247 #R5 Interrupt Mask
       self.IS = 248 #R6 Interrupt Status(Interrupts held betwen I0-I7[0xF8-0xFF])
       self.SP = 244 #R7 Stack Pointer(Starts at 0xF4 if stack is empty)
 
@@ -226,19 +226,29 @@ class CPU:
       pass
 
     def INT(self, reg_a):
-      pass
+      if self.IS <= 255:
+        self.ram_write(self.IS, reg_a)
+        self.IS += 1
     
     def IRET(self):
-      pass
+      # Pop all registers except R7
+      for i in range(6,0):
+        self.POP(self.ram_read(i))
+      # Pop the FL from stack
+      # Store return address in PC and then pop
+      # Enable interrupts
 
     def JEQ(self, reg_a):
-      pass
+      if self.FL['E'] == 1:
+        self.PC = self.ram_read(reg_a)
 
     def JGE(self, reg_a):
-      pass
+      if self.FL['E'] == 1 or self.FL['G'] == 1:
+        self.PC = self.ram_read(reg_a)
 
     def JGT(self, reg_a):
-      pass
+      if self.FL['G'] == 1:
+        self.PC = self.ram_read(reg_a)
 
     def POP(self, reg_a):
       pass
@@ -259,16 +269,19 @@ class CPU:
       pass
 
     def JMP(self, reg_a):
-      pass
+      self.PC = self.ram_read(reg_a)
 
     def JNE(self, reg_a):
-      pass
+      if self.FL['E'] == 0:
+        self.PC = self.ram_read(reg_a)
 
     def JLT(self, reg_a):
-      pass
+      if self.FL['L'] == 1:
+        self.PC = self.ram_read(reg_a)
 
     def JLE(self, reg_a):
-      pass
+      if self.FL['E'] == 1 or self.FL['L'] == 1:
+        self.PC = self.ram_read(reg_a)
 
     def LD(self, reg_a, reg_b):
       pass
