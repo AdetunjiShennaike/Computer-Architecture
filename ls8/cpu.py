@@ -209,17 +209,16 @@ class CPU:
         print()
 
     def LDI(self, reg_a, reg_b):
-      # index = self.ram_read(reg_a)
-      # value = self.ram_read(reg_b)
       self.Reg[reg_a] = reg_b
+      #Move the Program Counter
       self.PC += 3
 
     def HLT(self):
       self.running = False
 
     def PRN(self, reg_a):
-      # index = self.ram_read(reg_a)
       print(f'{self.Reg[reg_a]}')
+      #Move the Program Counter
       self.PC += 2
 
     def CALL(self, func):
@@ -229,6 +228,8 @@ class CPU:
       if self.IS <= 255:
         self.ram_write(self.IS, reg_a)
         self.IS += 1
+      #Move the Program Counter
+      self.PC += 2
     
     def IRET(self):
       # Pop all registers except R7
@@ -237,27 +238,38 @@ class CPU:
       # Pop the FL from stack
       # Store return address in PC and then pop
       # Enable interrupts
+      #Move the Program Counter
+      self.PC += 1
 
     def JEQ(self, reg_a):
       if self.FL['E'] == 1:
-        self.PC = self.ram_read(reg_a)
+        self.PC = reg_a
 
     def JGE(self, reg_a):
       if self.FL['E'] == 1 or self.FL['G'] == 1:
-        self.PC = self.ram_read(reg_a)
+        self.PC = reg_a
 
     def JGT(self, reg_a):
       if self.FL['G'] == 1:
-        self.PC = self.ram_read(reg_a)
+        self.PC = reg_a
 
     def POP(self, reg_a):
-      pass
+      self.Reg[reg_a] = self.ram_read(self.SP)
+      self.SP += 1
+      #Move the Program Counter
+      self.PC += 2
 
     def PRA(self, reg_a):
-      pass
+      #Print ASCII character of the number
+      print(str(chr(reg_a)))
+      #Move the Program Counter
+      self.PC += 2
 
     def PUSH(self, reg_a):
-      pass
+      self.SP -= 1
+      self.ram_write(self.SP, reg_a)
+      #Move the Program Counter
+      self.PC += 2
 
     def RET(self):
       pass
@@ -266,25 +278,28 @@ class CPU:
       pass
 
     def NOP(self):
-      pass
+      #Move the Program Counter
+      self.PC += 1
 
     def JMP(self, reg_a):
-      self.PC = self.ram_read(reg_a)
+      self.PC = reg_a
 
     def JNE(self, reg_a):
       if self.FL['E'] == 0:
-        self.PC = self.ram_read(reg_a)
+        self.PC = reg_a
 
     def JLT(self, reg_a):
       if self.FL['L'] == 1:
-        self.PC = self.ram_read(reg_a)
+        self.PC = reg_a
 
     def JLE(self, reg_a):
       if self.FL['E'] == 1 or self.FL['L'] == 1:
-        self.PC = self.ram_read(reg_a)
+        self.PC = reg_a
 
     def LD(self, reg_a, reg_b):
-      pass
+      self.Reg[reg_a] = self.Reg[reg_b]
+      #Move the Program Counter
+      self.PC += 3
 
 
     def run(self):
