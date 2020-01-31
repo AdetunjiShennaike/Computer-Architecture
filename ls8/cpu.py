@@ -61,6 +61,35 @@ class CPU:
         'L': 0, #Less
       }
 
+      # #Instruction Grouping
+      self.IRALU = ['ADD', 'SUB', 'MUL', 'DIV', 'MOD',  'INC', 'DEC',  'CMP',  'AND', 'NOT', 'OR', 'XOR', 'SHL', 'SHR',]
+      self.IR00 = {
+        'RET': self.RET,
+        'IRET': self.IRET,
+        'NOP': self.NOP,
+        'HLT': self.HLT,
+      }
+      self.IR01 = {
+        'CALL': self.CALL,
+        'INT': self.INT,
+        'JMP': self.JMP,
+        'JEQ': self.JEQ,
+        'JNE': self.JNE,
+        'JGT': self.JGT,
+        'JLT': self.JLT,
+        'JLE': self.JLE,
+        'JGE': self.JGE,
+        'PUSH': self.PUSH,
+        'POP': self.POP,
+        'PRN': self.PRN,
+        'PRA': self.PRA,
+      }
+      self.IR10 = {
+        'LDI': self.LDI,
+        'LD': self.LD,
+        'ST': self.ST,
+      }
+
     def ram_read(self, address):
       return self.RAM[address]
 
@@ -143,6 +172,7 @@ class CPU:
         elif op == "MUL":
             result = self.Reg[reg_a] * self.Reg[reg_b]
             self.Reg[reg_a] = result
+            self.PC += 3
         elif op == "DIV":
             if self.Reg[reg_b] == 0:
               print(f'Cannot use the value 0')
@@ -182,6 +212,7 @@ class CPU:
       # index = self.ram_read(reg_a)
       # value = self.ram_read(reg_b)
       self.Reg[reg_a] = reg_b
+      self.PC += 3
 
     def HLT(self):
       self.running = False
@@ -189,6 +220,7 @@ class CPU:
     def PRN(self, reg_a):
       # index = self.ram_read(reg_a)
       print(f'{self.Reg[reg_a]}')
+      self.PC += 2
 
     def CALL(self, func):
       pass
@@ -196,33 +228,50 @@ class CPU:
     def INT(self, reg_a):
       pass
     
-    def IRET(self, func):
+    def IRET(self):
       pass
 
-    def JEQ(self, func):
+    def JEQ(self, reg_a):
       pass
 
-    def JGE(self, func):
+    def JGE(self, reg_a):
       pass
 
-    def JGT(self, func):
+    def JGT(self, reg_a):
       pass
 
-    def POP(self):
+    def POP(self, reg_a):
       pass
 
-    def PRA(self):
+    def PRA(self, reg_a):
       pass
 
-    def PUSH(self):
+    def PUSH(self, reg_a):
       pass
 
     def RET(self):
       pass
 
-    def ST(self):
+    def ST(self, reg_a, reg_b):
       pass
 
+    def NOP(self):
+      pass
+
+    def JMP(self, reg_a):
+      pass
+
+    def JNE(self, reg_a):
+      pass
+
+    def JLT(self, reg_a):
+      pass
+
+    def JLE(self, reg_a):
+      pass
+
+    def LD(self, reg_a, reg_b):
+      pass
 
 
     def run(self):
@@ -240,22 +289,20 @@ class CPU:
       """
 
       self.Reg[7] = self.SP
-
       while self.running:
         command = self.ram_read(self.PC)
         if command in self.IR:
           instruction = self.IR[command]
-        if instruction == 'LDI':
-          self.LDI(self.ram_read(self.PC + 1), self.ram_read(self.PC + 2))
-          self.PC += 3
-        elif instruction == 'HLT':
-          self.HLT()
+        if instruction in self.IR10:
+          self.IR10[instruction](self.ram_read(self.PC + 1), self.ram_read(self.PC + 2))
+        elif instruction in self.IR01:
+          self.IR01[instruction](self.ram_read(self.PC + 1))
+        elif instruction in self.IR00:
+          self.IR00[instruction]()
         elif instruction == 'PRN':
           self.PRN(self.ram_read(self.PC + 1))
-          self.PC += 2
-        elif instruction == 'MUL':
-          self.alu('MUL',self.ram_read(self.PC + 1), self.ram_read(self.PC + 2))
-          self.PC += 3
+        elif instruction in self.IRALU:
+          self.alu(instruction,self.ram_read(self.PC + 1), self.ram_read(self.PC + 2))
         else:
           print(f'This {instruction} does not exist.')
           sys.exit(1)
