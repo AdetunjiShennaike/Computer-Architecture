@@ -10,7 +10,13 @@ class CPU:
       self.running = True
       self.RAM = [0] * 256
       self.Reg = [0] * 8
-      self.IR = {
+      self.IM = 247 #R5 Interrupt Mask
+      self.IS = 248 #R6 Interrupt Status(Interrupts held betwen I0-I7[0xF8-0xFF])
+      self.SP = 244 #R7 Stack Pointer(Starts at 0xF4 if stack is empty)
+
+      # Internal Registers
+      self.PC = 0 #Unmarked Program Counter
+      self.IR = { #Instruction Register
         0: 'NOP', #No Operation
         1: 'HLT', #Halt
         17: 'RET', #Return
@@ -37,7 +43,7 @@ class CPU:
         160: 'ADD',
         161: 'SUB',
         162: 'MUL',
-        162: 'DIV',
+        163: 'DIV',
         164: 'MOD', #Modulous
         167: 'CMP', #Compare
         168: 'AND', #Bitwise AND
@@ -46,13 +52,42 @@ class CPU:
         172: 'SHL', #Shift Left
         173: 'SHR', #Shift Right
       }
-      self.PC = 0
-      # self.SP = 
+      # self.MAR #Memory Address Register
+      # self.MDR #Memory Data Register
       # self.IE = 
-      self.FL = {
+      self.FL = { #Flags
         'E': 0, #Equals
         'G': 0, #Greater
         'L': 0, #Less
+      }
+
+      # #Instruction Grouping
+      self.IRALU = ['ADD', 'SUB', 'MUL', 'DIV', 'MOD',  'INC', 'DEC',  'CMP',  'AND', 'NOT', 'OR', 'XOR', 'SHL', 'SHR',]
+      self.IR00 = {
+        'RET': self.RET,
+        'IRET': self.IRET,
+        'NOP': self.NOP,
+        'HLT': self.HLT,
+      }
+      self.IR01 = {
+        'CALL': self.CALL,
+        'INT': self.INT,
+        'JMP': self.JMP,
+        'JEQ': self.JEQ,
+        'JNE': self.JNE,
+        'JGT': self.JGT,
+        'JLT': self.JLT,
+        'JLE': self.JLE,
+        'JGE': self.JGE,
+        'PUSH': self.PUSH,
+        'POP': self.POP,
+        'PRN': self.PRN,
+        'PRA': self.PRA,
+      }
+      self.IR10 = {
+        'LDI': self.LDI,
+        'LD': self.LD,
+        'ST': self.ST,
       }
 
     def ram_read(self, address):
@@ -137,6 +172,7 @@ class CPU:
         elif op == "MUL":
             result = self.Reg[reg_a] * self.Reg[reg_b]
             self.Reg[reg_a] = result
+            self.PC += 3
         elif op == "DIV":
             if self.Reg[reg_b] == 0:
               print(f'Cannot use the value 0')
@@ -160,7 +196,7 @@ class CPU:
 
         print(f"TRACE: %02X | %02X %02X %02X |" % (
             self.PC,
-            #self.FL,
+            self.FL,
             #self.IE,
             self.ram_read(self.PC),
             self.ram_read(self.PC + 1),
@@ -173,66 +209,113 @@ class CPU:
         print()
 
     def LDI(self, reg_a, reg_b):
-      index = self.ram_read(reg_a)
-      value = self.ram_read(reg_b)
-      self.Reg[index] = value
+      # index = self.ram_read(reg_a)
+      # value = self.ram_read(reg_b)
+      self.Reg[reg_a] = reg_b
       self.PC += 3
 
     def HLT(self):
       self.running = False
 
     def PRN(self, reg_a):
-      index = self.ram_read(reg_a)
-      print(f'{self.Reg[index]}')
+      # index = self.ram_read(reg_a)
+      print(f'{self.Reg[reg_a]}')
       self.PC += 2
 
     def CALL(self, func):
       pass
 
-    def INT(self, func):
-      pass
+    def INT(self, reg_a):
+      if self.IS <= 255:
+        self.ram_write(self.IS, reg_a)
+        self.IS += 1
     
-    def IRET(self, func):
+    def IRET(self):
+      # Pop all registers except R7
+      for i in range(6,0):
+        self.POP(self.ram_read(i))
+      # Pop the FL from stack
+      # Store return address in PC and then pop
+      # Enable interrupts
+
+    def JEQ(self, reg_a):
+      if self.FL['E'] == 1:
+        self.PC = self.ram_read(reg_a)
+
+    def JGE(self, reg_a):
+      if self.FL['E'] == 1 or self.FL['G'] == 1:
+        self.PC = self.ram_read(reg_a)
+
+    def JGT(self, reg_a):
+      if self.FL['G'] == 1:
+        self.PC = self.ram_read(reg_a)
+
+    def POP(self, reg_a):
       pass
 
-    def JEQ(self, func):
+    def PRA(self, reg_a):
       pass
 
-    def JGE(self, func):
-      pass
-
-    def JGT(self, func):
-      pass
-
-    def POP(self):
-      pass
-
-    def PRA(self):
-      pass
-
-    def PUSH(self):
+    def PUSH(self, reg_a):
       pass
 
     def RET(self):
       pass
 
-    def ST(self):
+    def ST(self, reg_a, reg_b):
+      pass
+
+    def NOP(self):
+      pass
+
+    def JMP(self, reg_a):
+      self.PC = self.ram_read(reg_a)
+
+    def JNE(self, reg_a):
+      if self.FL['E'] == 0:
+        self.PC = self.ram_read(reg_a)
+
+    def JLT(self, reg_a):
+      if self.FL['L'] == 1:
+        self.PC = self.ram_read(reg_a)
+
+    def JLE(self, reg_a):
+      if self.FL['E'] == 1 or self.FL['L'] == 1:
+        self.PC = self.ram_read(reg_a)
+
+    def LD(self, reg_a, reg_b):
       pass
 
 
-
     def run(self):
-      """Run the CPU."""
+      """
+      Run the CPU.
+      
+      When the LS-8 is booted, the following steps occur:
+
+        R0-R6 are cleared to 0.
+        R7 is set to 0xF4.
+        PC and FL registers are cleared to 0.
+        RAM is cleared to 0.
+      
+      Subsequently, the program can be loaded into RAM starting at address 0x00.
+      """
+
+      self.Reg[7] = self.SP
       while self.running:
         command = self.ram_read(self.PC)
         if command in self.IR:
           instruction = self.IR[command]
-        if instruction == 'LDI':
-          self.LDI(self.PC + 1, self.PC + 2)
-        elif instruction == 'HLT':
-          self.HLT()
+        if instruction in self.IR10:
+          self.IR10[instruction](self.ram_read(self.PC + 1), self.ram_read(self.PC + 2))
+        elif instruction in self.IR01:
+          self.IR01[instruction](self.ram_read(self.PC + 1))
+        elif instruction in self.IR00:
+          self.IR00[instruction]()
         elif instruction == 'PRN':
-          self.PRN(self.PC + 1)
+          self.PRN(self.ram_read(self.PC + 1))
+        elif instruction in self.IRALU:
+          self.alu(instruction,self.ram_read(self.PC + 1), self.ram_read(self.PC + 2))
         else:
-          print(f'This {instruction} doe not exist.')
+          print(f'This {instruction} does not exist.')
           sys.exit(1)
