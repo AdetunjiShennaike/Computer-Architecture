@@ -129,6 +129,10 @@ class CPU:
 
     def alu(self, op, reg_a, reg_b = 0):
         """ALU operations."""
+        if op == "INC" or op == "DEC" or op == "NOT":
+          self.PC += 2
+        else:
+          self.PC += 3
 
         if op == "ADD":
             self.Reg[reg_a] += self.Reg[reg_b]
@@ -224,9 +228,9 @@ class CPU:
     def CALL(self, func):
       # Store current PC for RET to use later
       self.SP -= 1
-      self.RAM[self.SP] = self.PC
+      self.RAM[self.SP] = self.PC + 2
       # Move to the location of the subroutine
-      self.PC = func
+      self.PC = self.Reg[func]
 
 
 
