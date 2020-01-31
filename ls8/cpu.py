@@ -222,7 +222,13 @@ class CPU:
       self.PC += 2
 
     def CALL(self, func):
-      pass
+      # Store current PC for RET to use later
+      self.SP -= 1
+      self.RAM[self.SP] = self.PC
+      # Move to the location of the subroutine
+      self.PC = func
+
+
 
     def INT(self, reg_a):
       if self.IS <= 255:
@@ -260,22 +266,21 @@ class CPU:
       self.PC += 2
 
     def PRA(self, reg_a):
-      #Print ASCII character of the number
+      # Print ASCII character of the number
       print(str(chr(reg_a)))
       #Move the Program Counter
       self.PC += 2
 
     def PUSH(self, reg_a):
       self.SP -= 1
-      self.ram_write(self.SP, reg_a)
+      self.RAM[self.SP] = self.Reg[reg_a]
       #Move the Program Counter
       self.PC += 2
 
     def RET(self):
-      self.ram_write(self.PC, self.ram_read(self.SP))
+      #Move Program Counter to the location it was at when call was invoked
+      self.PC = self.ram_read(self.SP)
       self.SP += 1
-      #Move the Program Counter
-      self.PC += 1
 
     def ST(self, reg_a, reg_b):
       self.ram_write(self.Reg[reg_a], self.Reg[reg_a])
