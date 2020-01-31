@@ -272,10 +272,15 @@ class CPU:
       self.PC += 2
 
     def RET(self):
-      pass
+      self.ram_write(self.PC, self.ram_read(self.SP))
+      self.SP += 1
+      #Move the Program Counter
+      self.PC += 1
 
     def ST(self, reg_a, reg_b):
-      pass
+      self.ram_write(self.Reg[reg_a], self.Reg[reg_a])
+      #Move the Program Counter
+      self.PC += 3
 
     def NOP(self):
       #Move the Program Counter
@@ -297,7 +302,7 @@ class CPU:
         self.PC = reg_a
 
     def LD(self, reg_a, reg_b):
-      self.Reg[reg_a] = self.Reg[reg_b]
+      self.Reg[reg_a] = self.ram_read(self.Reg[reg_b])
       #Move the Program Counter
       self.PC += 3
 
